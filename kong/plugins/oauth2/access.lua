@@ -381,7 +381,7 @@ local function load_token_into_memory(conf, api, access_token)
   if not conf.global_credentials then
     api_id = api.id
   end
-  local credentials, err = singletons.dao.oauth2_tokens:find_all { api_id = api_id, access_token = access_token }
+  local credentials, err = singletons.dao.oauth2_tokens:find_all { access_token = access_token }
   local result
   if err then
     return nil, err
@@ -493,7 +493,7 @@ local function do_authentication(conf)
     return false, {status = 401, message = {[ERROR] = "invalid_token", error_description = "The access token is invalid or has expired"}, headers = {["WWW-Authenticate"] = 'Bearer realm="service" error="invalid_token" error_description="The access token is invalid or has expired"'}}
   end
 
-  if (token.api_id and ngx.ctx.api.id ~= token.api_id) or (token.api_id == nil and not conf.global_credentials) then
+  if token.api_id == nil and not conf.global_credentials then
     return false, {status = 401, message = {[ERROR] = "invalid_token", error_description = "The access token is invalid or has expired"}, headers = {["WWW-Authenticate"] = 'Bearer realm="service" error="invalid_token" error_description="The access token is invalid or has expired"'}}
   end
 
